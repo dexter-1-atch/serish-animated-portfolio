@@ -58,14 +58,12 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/jarvis-chat`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer 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`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'openai/gpt-oss-20b',
           messages: [
             {
               role: 'system',
@@ -90,9 +88,7 @@ IMPORTANT RULES:
               role: 'user',
               content: userMessage.content
             }
-          ],
-          temperature: 0.7,
-          max_tokens: 300
+          ]
         })
       });
 
