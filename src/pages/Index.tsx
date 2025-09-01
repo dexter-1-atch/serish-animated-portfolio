@@ -4,6 +4,7 @@ import Skills from "@/components/Skills";
 import Projects from "@/components/Projects";
 import Contact from "@/components/Contact";
 import Navigation from "@/components/Navigation";
+import JarvisButton from "@/components/JarvisButton";
 
 const Index = () => {
   return (
@@ -23,6 +24,8 @@ const Index = () => {
           <Contact />
         </div>
       </main>
+      
+      <JarvisButton />
     </div>
   );
 };

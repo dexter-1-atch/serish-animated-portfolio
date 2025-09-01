@@ -42,6 +42,10 @@ const Hero = () => {
             Studying at <span className="text-primary font-semibold">Woburn Collegiate Institute</span> and crafting beautiful, 
             functional web experiences with cutting-edge technologies.
           </p>
+          <div className="flex items-center justify-center gap-2 mb-6 text-sm text-muted-foreground">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span>Try chatting with <span className="text-primary font-medium">Jarvis</span>, my AI assistant (bottom right)</span>
+          </div>
         </div>
 
         <div className="reveal-animation flex flex-col sm:flex-row gap-4 justify-center mb-16" style={{ animationDelay: '0.6s' }}>
