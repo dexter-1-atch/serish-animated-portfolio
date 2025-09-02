@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Send, Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -58,12 +59,8 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/functions/v1/jarvis-chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('jarvis-chat', {
+        body: {
           messages: [
             {
               role: 'system',
@@ -96,25 +93,34 @@ IMPORTANT RULES:
             },
             {
               role: 'user',
-              content: userMessage.content
-            }
-          ]
-        })
+              content: userMessage.content,
+            },
+          ],
+        },
       });
 
-      const data = await response.json();
-      
-      if (data.choices && data.choices[0]) {
-        const jarvisMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: data.choices[0].message.content,
-          sender: 'jarvis',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, jarvisMessage]);
-      } else {
-        throw new Error('Invalid response format');
+      if (error) {
+        throw new Error(error.message || 'Failed to reach Jarvis');
       }
+
+      const content =
+        (data as any)?.choices?.[0]?.message?.content ??
+        (data as any)?.message?.content ??
+        (data as any)?.choices?.[0]?.text ??
+        null;
+
+      if (!content) {
+        throw new Error('Invalid response from Jarvis');
+      }
+
+      const jarvisMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content,
+        sender: 'jarvis',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, jarvisMessage]);
+
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = {
