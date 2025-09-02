@@ -13,19 +13,37 @@ serve(async (req) => {
   try {
     const { messages } = await req.json()
     
+    const groqKey = Deno.env.get('GROQ_API_KEY');
+    if (!groqKey) {
+      console.error('Missing GROQ_API_KEY secret');
+      return new Response(
+        JSON.stringify({ error: 'Missing GROQ_API_KEY' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('GROQ_API_KEY')}`,
+        'Authorization': `Bearer ${groqKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-20b',
+        model: 'llama-3.1-70b-versatile',
         messages,
         temperature: 0.7,
-        max_tokens: 300
+        max_tokens: 300,
       })
-    })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('Groq API error:', response.status, errText);
+      return new Response(
+        JSON.stringify({ error: 'Groq API error', details: errText }),
+        { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const data = await response.json()
     
