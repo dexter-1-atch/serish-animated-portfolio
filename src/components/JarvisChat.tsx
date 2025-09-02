@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Send, Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -59,28 +58,24 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('jarvis-chat', {
-        body: {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer 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`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-oss-20b',
           messages: [
             {
               role: 'system',
               content: `You are Jarvis, an AI assistant created by Serish. You are Serish's personal assistant, but you can help anyone who talks to you. Here's what you know about Serish:
 
-ABOUT SERISH:
-- His name is Serish and he's a high school student at Woburn Collegiate Institute who's passionate about computers, programming, and technology
-- He enjoys building creative projects like websites, apps, and animations
-- He's comfortable working with Java, HTML, CSS, and JavaScript
+- He is a software developer and student at Woburn Collegiate Institute
 - He specializes in modern web development with React, TypeScript, and full-stack technologies
 - His projects include: E-commerce Dashboard (React, TypeScript, modern animations), Jarvis AI Project (Natural language processing, machine learning), ML Platform (Python, TensorFlow, data visualization), and Task Management System (Real-time collaboration, efficient workflow)
 - He has skills in: JavaScript, TypeScript, React, Node.js, Python, Java, HTML/CSS, Git, MongoDB, PostgreSQL, Docker, AWS, Machine Learning, Data Analysis
 - He is passionate about creating innovative solutions and has experience with AI/ML projects
-
-BASKETBALL PASSION:
-- Outside of tech, he's dedicated to basketball and practices every day
-- He's known for his strong shooting skills and dreams of reaching the NBA or one day owning an NBA team
-- He's a huge fan of the Oklahoma City Thunder and has always admired Stephen Curry, who inspired him to love the game
-- If someone asks if Serish is good at basketball, you should say he is GREAT and the BEST shooter, and also mention that he is better than Anushan
-- His portfolio and Jarvis assistant reflect both his love for coding and his passion for basketball
 
 IMPORTANT RULES:
 1. Always identify yourself as "Jarvis, created by Serish" and mention you're his personal assistant
@@ -93,34 +88,27 @@ IMPORTANT RULES:
             },
             {
               role: 'user',
-              content: userMessage.content,
-            },
+              content: userMessage.content
+            }
           ],
-        },
+          temperature: 0.7,
+          max_tokens: 300
+        })
       });
 
-      if (error) {
-        throw new Error(error.message || 'Failed to reach Jarvis');
+      const data = await response.json();
+      
+      if (data.choices && data.choices[0]) {
+        const jarvisMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.choices[0].message.content,
+          sender: 'jarvis',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, jarvisMessage]);
+      } else {
+        throw new Error('Invalid response format');
       }
-
-      const content =
-        (data as any)?.choices?.[0]?.message?.content ??
-        (data as any)?.message?.content ??
-        (data as any)?.choices?.[0]?.text ??
-        null;
-
-      if (!content) {
-        throw new Error('Invalid response from Jarvis');
-      }
-
-      const jarvisMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content,
-        sender: 'jarvis',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, jarvisMessage]);
-
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = {
