@@ -13,7 +13,25 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    console.log('Starting jarvis-chat function');
+    
+    // Parse the request body
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log('Request body:', requestBody);
+    } catch (e) {
+      console.error('Failed to parse request body:', e);
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { message } = requestBody;
+    
+    if (!message) {
+      console.error('No message provided in request');
+      throw new Error('Message is required');
+    }
+
     console.log('Received message:', message);
 
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
@@ -23,9 +41,9 @@ serve(async (req) => {
       throw new Error('API key not configured');
     }
 
-    console.log('Making request to Groq API...');
+    console.log('GROQ_API_KEY found, making request to Groq API...');
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${groqApiKey}`,
@@ -63,33 +81,42 @@ IMPORTANT RULES:
       })
     });
 
-    console.log('Response status:', response.status);
+    console.log('Groq API response status:', groqResponse.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Groq API error:', errorText);
-      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+    if (!groqResponse.ok) {
+      const errorText = await groqResponse.text();
+      console.error('Groq API error response:', errorText);
+      throw new Error(`Groq API error: ${groqResponse.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    console.log('Groq response:', data);
+    const data = await groqResponse.json();
+    console.log('Groq response data:', JSON.stringify(data, null, 2));
     
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return new Response(JSON.stringify({ 
+    if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+      const responseData = { 
         content: data.choices[0].message.content 
-      }), {
+      };
+      
+      console.log('Returning success response:', responseData);
+      
+      return new Response(JSON.stringify(responseData), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
       });
     } else {
-      console.error('Unexpected response format:', data);
+      console.error('Unexpected response format from Groq:', data);
       throw new Error('Invalid response format from Groq API');
     }
 
   } catch (error) {
     console.error('Error in jarvis-chat function:', error);
-    return new Response(JSON.stringify({ 
+    console.error('Error stack:', error.stack);
+    
+    const errorResponse = { 
       error: "I'm having trouble connecting right now. Please try again in a moment." 
-    }), {
+    };
+    
+    return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
