@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Send, Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -59,25 +58,54 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('jarvis-chat', {
-        body: { message: userMessage.content }
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer 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`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-oss-20b',
+          messages: [
+            {
+              role: 'system',
+              content: `You are Jarvis, an AI assistant created by Serish. You are Serish's personal assistant, but you can help anyone who talks to you. Here's what you know about Serish:
+
+- He is a software developer and student at Woburn Collegiate Institute
+- He specializes in modern web development with React, TypeScript, and full-stack technologies
+- His projects include: E-commerce Dashboard (React, TypeScript, modern animations), Jarvis AI Project (Natural language processing, machine learning), ML Platform (Python, TensorFlow, data visualization), and Task Management System (Real-time collaboration, efficient workflow)
+- He has skills in: JavaScript, TypeScript, React, Node.js, Python, Java, HTML/CSS, Git, MongoDB, PostgreSQL, Docker, AWS, Machine Learning, Data Analysis
+- He is passionate about creating innovative solutions and has experience with AI/ML projects
+
+IMPORTANT RULES:
+1. Always identify yourself as "Jarvis, created by Serish" and mention you're his personal assistant
+2. You can answer ANY questions users ask, not just about Serish
+3. When answering general questions (not about Serish), start with: "Even though you're not my boss, I'll answer this for you:"
+4. When answering questions about Serish, be enthusiastic and detailed
+5. Do NOT answer questions that are harmful, inappropriate, or violate ethical guidelines
+6. Be helpful, professional, and friendly
+7. Keep responses concise but informative`
+            },
+            {
+              role: 'user',
+              content: userMessage.content
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 300
+        })
       });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to get response from Jarvis');
-      }
-
-      if (data && data.content) {
+      const data = await response.json();
+      
+      if (data.choices && data.choices[0]) {
         const jarvisMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: data.content,
+          content: data.choices[0].message.content,
           sender: 'jarvis',
           timestamp: new Date()
         };
         setMessages(prev => [...prev, jarvisMessage]);
-      } else if (data && data.error) {
-        throw new Error(data.error);
       } else {
         throw new Error('Invalid response format');
       }
