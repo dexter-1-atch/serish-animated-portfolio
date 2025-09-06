@@ -58,7 +58,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/jarvis-chat`, {
+      const response = await fetch(`/functions/v1/jarvis-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
