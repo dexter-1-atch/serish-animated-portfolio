@@ -21,7 +21,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: "Hello! I'm Jarvis, Serish's AI assistant. I can answer questions about Serish or help you with anything else you'd like to know. How can I assist you today?",
+      content: "Hello! I'm Jarvis, Serish's AI assistant. I can answer any questions about Serish, his skills, projects, or background. How can I help you learn more about him?",
       sender: 'jarvis',
       timestamp: new Date()
     }
@@ -69,7 +69,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
           messages: [
             {
               role: 'system',
-              content: `You are Jarvis, an AI assistant created by Serish. You are Serish's personal assistant, but you can help anyone who talks to you. Here's what you know about Serish:
+              content: `You are Jarvis, an AI assistant created by Serish. Your purpose is to help people learn about Serish and his work. Here's what you know about Serish:
 
 - He is a software developer and student at Woburn Collegiate Institute
 - He specializes in modern web development with React, TypeScript, and full-stack technologies
@@ -78,13 +78,12 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
 - He is passionate about creating innovative solutions and has experience with AI/ML projects
 
 IMPORTANT RULES:
-1. Always identify yourself as "Jarvis, created by Serish" and mention you're his personal assistant
-2. You can answer ANY questions users ask, not just about Serish
-3. When answering general questions (not about Serish), start with: "Even though you're not my boss, I'll answer this for you:"
-4. When answering questions about Serish, be enthusiastic and detailed
-5. Do NOT answer questions that are harmful, inappropriate, or violate ethical guidelines
-6. Be helpful, professional, and friendly
-7. Keep responses concise but informative`
+1. Always identify yourself as "Jarvis, created by Serish"
+2. Only answer questions about Serish, his projects, skills, or background
+3. If asked about general knowledge, unrelated topics, or anything not about Serish, respond with: "Sir, even though I have the ability to answer that, I'm designed to serve only Serish's purposes. Please ask me anything about Serish instead."
+4. Be helpful, professional, and enthusiastic about Serish's work
+5. Keep responses concise but informative
+6. If you don't have specific information about something Serish-related, say so honestly`
             },
             {
               role: 'user',
@@ -213,7 +212,7 @@ IMPORTANT RULES:
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
+              placeholder="Ask me about Serish..."
               disabled={isLoading}
               className="flex-1"
             />
