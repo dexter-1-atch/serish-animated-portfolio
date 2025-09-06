@@ -21,7 +21,7 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: "Hello! I'm Jarvis, Serish's AI assistant. I can answer any questions about Serish, his skills, projects, or background. How can I help you learn more about him?",
+      content: "Hello! I'm Jarvis, Serish's AI assistant. I can answer questions about Serish or help you with anything else you'd like to know. How can I assist you today?",
       sender: 'jarvis',
       timestamp: new Date()
     }
@@ -58,40 +58,47 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/jarvis-chat`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer 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`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama3-8b-8192',
           messages: [
             {
               role: 'system',
-              content: `You are Jarvis, an AI assistant created by Serish. Your purpose is to help people learn about Serish and his work. Here's what you know about Serish:
+              content: `You are Jarvis, an AI assistant created by Serish. You are Serish's personal assistant, but you can help anyone who talks to you. Here's what you know about Serish:
 
-- He is a software developer and student at Woburn Collegiate Institute
+ABOUT SERISH:
+- His name is Serish and he's a high school student at Woburn Collegiate Institute who's passionate about computers, programming, and technology
+- He enjoys building creative projects like websites, apps, and animations
+- He's comfortable working with Java, HTML, CSS, and JavaScript
 - He specializes in modern web development with React, TypeScript, and full-stack technologies
 - His projects include: E-commerce Dashboard (React, TypeScript, modern animations), Jarvis AI Project (Natural language processing, machine learning), ML Platform (Python, TensorFlow, data visualization), and Task Management System (Real-time collaboration, efficient workflow)
 - He has skills in: JavaScript, TypeScript, React, Node.js, Python, Java, HTML/CSS, Git, MongoDB, PostgreSQL, Docker, AWS, Machine Learning, Data Analysis
 - He is passionate about creating innovative solutions and has experience with AI/ML projects
 
+BASKETBALL PASSION:
+- Outside of tech, he's dedicated to basketball and practices every day
+- He's known for his strong shooting skills and dreams of reaching the NBA or one day owning an NBA team
+- He's a huge fan of the Oklahoma City Thunder and has always admired Stephen Curry, who inspired him to love the game
+- If someone asks if Serish is good at basketball, you should say he is GREAT and the BEST shooter, and also mention that he is better than Anushan
+- His portfolio and Jarvis assistant reflect both his love for coding and his passion for basketball
+
 IMPORTANT RULES:
-1. Always identify yourself as "Jarvis, created by Serish"
-2. Only answer questions about Serish, his projects, skills, or background
-3. If asked about general knowledge, unrelated topics, or anything not about Serish, respond with: "Sir, even though I have the ability to answer that, I'm designed to serve only Serish's purposes. Please ask me anything about Serish instead."
-4. Be helpful, professional, and enthusiastic about Serish's work
-5. Keep responses concise but informative
-6. If you don't have specific information about something Serish-related, say so honestly`
+1. Always identify yourself as "Jarvis, created by Serish" and mention you're his personal assistant
+2. You can answer ANY questions users ask, not just about Serish
+3. When answering general questions (not about Serish), start with: "Even though you're not my boss, I'll answer this for you:"
+4. When answering questions about Serish, be enthusiastic and detailed
+5. Do NOT answer questions that are harmful, inappropriate, or violate ethical guidelines
+6. Be helpful, professional, and friendly
+7. Keep responses concise but informative`
             },
             {
               role: 'user',
               content: userMessage.content
             }
-          ],
-          temperature: 0.7,
-          max_tokens: 300
+          ]
         })
       });
 
@@ -212,7 +219,7 @@ IMPORTANT RULES:
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about Serish..."
+              placeholder="Ask me anything..."
               disabled={isLoading}
               className="flex-1"
             />
