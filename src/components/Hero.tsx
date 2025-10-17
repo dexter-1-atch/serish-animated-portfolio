@@ -1,77 +1,55 @@
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Github, Mail, ExternalLink } from "lucide-react";
+import { ArrowDown, Mail, Code2 } from "lucide-react";
 
 const Hero = () => {
-  const scrollToAbout = () => {
-    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 animated-gradient opacity-20" />
-      
-      {/* Floating particles effect */}
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-primary rounded-full opacity-30 floating-animation"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 6}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-        <div className="reveal-animation" style={{ animationDelay: '0.2s' }}>
-          <h1 className="text-6xl md:text-8xl font-bold mb-6 hero-glow">
-            Hi, I'm{' '}
-            <span className="gradient-text">Serish</span>
+    <section className="relative min-h-screen flex items-center justify-center px-6">
+      <div className="relative z-10 max-w-5xl mx-auto">
+        <div className="reveal-animation" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-7xl md:text-9xl font-black mb-8 tracking-tight">
+            SERISH
           </h1>
         </div>
         
-        <div className="reveal-animation" style={{ animationDelay: '0.4s' }}>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-4 font-light">
-            Software Developer & Student
+        <div className="reveal-animation mb-12" style={{ animationDelay: '0.2s' }}>
+          <p className="text-2xl md:text-3xl mb-4 text-muted-foreground font-medium">
+            Software Developer
           </p>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Studying at <span className="text-primary font-semibold">Woburn Collegiate Institute</span> and crafting beautiful, 
-            functional web experiences with cutting-edge technologies.
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Building functional web applications. Currently studying at Woburn Collegiate Institute.
           </p>
-          <div className="flex items-center justify-center gap-2 mb-6 text-sm text-muted-foreground">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span>Try chatting with <span className="text-primary font-medium">Jarvis</span>, my AI assistant (bottom right)</span>
-          </div>
         </div>
 
-        <div className="reveal-animation flex flex-col sm:flex-row gap-4 justify-center mb-16" style={{ animationDelay: '0.6s' }}>
+        <div className="reveal-animation flex flex-wrap gap-4 mb-16" style={{ animationDelay: '0.3s' }}>
           <Button 
             size="lg" 
-            className="bg-primary hover:bg-primary/80 text-primary-foreground font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 hero-glow"
+            onClick={() => scrollToSection('contact')}
+            className="brutal-border bg-primary text-primary-foreground font-bold px-8 h-14 text-lg uppercase tracking-wide"
           >
             <Mail className="mr-2 h-5 w-5" />
-            Get In Touch
+            Contact
           </Button>
           <Button 
-            variant="outline" 
             size="lg"
-            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105"
+            onClick={() => scrollToSection('projects')}
+            className="brutal-border bg-background text-foreground border-foreground font-bold px-8 h-14 text-lg uppercase tracking-wide"
           >
-            <Github className="mr-2 h-5 w-5" />
-            View Projects
+            <Code2 className="mr-2 h-5 w-5" />
+            Projects
           </Button>
         </div>
 
-        <div className="reveal-animation" style={{ animationDelay: '0.8s' }}>
+        <div className="reveal-animation" style={{ animationDelay: '0.4s' }}>
           <button 
-            onClick={scrollToAbout}
-            className="animate-bounce p-2 rounded-full border border-primary/20 hover:border-primary/40 transition-colors duration-300"
+            onClick={() => scrollToSection('about')}
+            className="p-3 border-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+            aria-label="Scroll to about section"
           >
-            <ArrowDown className="h-6 w-6 text-primary" />
+            <ArrowDown className="h-6 w-6" />
           </button>
         </div>
       </div>
