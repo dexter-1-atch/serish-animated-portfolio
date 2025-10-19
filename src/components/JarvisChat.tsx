@@ -88,6 +88,12 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
+      // Convert all messages to OpenAI format, including conversation history
+      const conversationHistory = messages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      }));
+
       const { data, error } = await supabase.functions.invoke('jarvis-chat', {
         body: {
           messages: [
@@ -120,6 +126,7 @@ IMPORTANT RULES:
 6. Be helpful, professional, and friendly
 7. Keep responses concise but informative`
             },
+            ...conversationHistory,
             {
               role: 'user',
               content: userMessage.content,
