@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Send, Bot, User } from 'lucide-react';
+import { X, Send, Bot, User, Volume2, VolumeX, Cloud, CloudRain, Sun, Wind } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -29,7 +29,36 @@ const JarvisChat: React.FC<JarvisChatProps> = ({ isOpen, onClose }) => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [weather, setWeather] = useState({ temp: 72, condition: 'clear' });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      synthRef.current = window.speechSynthesis;
+    }
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const speak = (text: string) => {
+    if (synthRef.current && isSpeaking) {
+      synthRef.current.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.1;
+      utterance.pitch = 1.0;
+      synthRef.current.speak(utterance);
+    }
+  };
+
+  const toggleSpeech = () => {
+    setIsSpeaking(!isSpeaking);
+    if (!isSpeaking && synthRef.current) {
+      synthRef.current.cancel();
+    }
+  };
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -120,6 +149,10 @@ IMPORTANT RULES:
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, jarvisMessage]);
+      
+      if (isSpeaking) {
+        speak(content);
+      }
 
     } catch (error) {
       console.error('Error:', error);
@@ -144,73 +177,130 @@ IMPORTANT RULES:
 
   if (!isOpen) return null;
 
+  const WeatherIcon = weather.condition === 'rain' ? CloudRain : weather.condition === 'cloudy' ? Cloud : Sun;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-end p-4 pointer-events-none">
-      <div className="bg-card border border-border rounded-lg shadow-2xl w-96 h-[500px] flex flex-col pointer-events-auto animate-in slide-in-from-bottom-2 duration-300">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border bg-primary/5 rounded-t-lg">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-primary" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm">
+        <div className="absolute inset-0 overflow-hidden">
+          {isLoading && (
+            <>
+              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-75" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-spin" style={{ animationDuration: '20s' }} />
+            </>
+          )}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent_0%,rgba(var(--primary-rgb),0.05)_50%,transparent_100%)] animate-pulse" />
+        </div>
+      </div>
+
+      {/* Main Container */}
+      <div className="relative bg-card/90 backdrop-blur-md border-2 border-primary/30 rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+        {/* Advanced Header */}
+        <div className="relative p-6 border-b border-primary/20 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/50 relative overflow-hidden">
+                  <Bot className="w-7 h-7 text-primary z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent animate-spin" style={{ animationDuration: '3s' }} />
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl">JARVIS</h3>
+                <p className="text-sm text-muted-foreground">Advanced AI Assistant</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-sm">Jarvis</h3>
-              <p className="text-xs text-muted-foreground">Serish's AI Assistant</p>
+            
+            {/* Time & Weather */}
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <div className="text-2xl font-bold font-mono tabular-nums">
+                  {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 bg-card/50 rounded-lg border border-primary/20">
+                <WeatherIcon className="w-5 h-5 text-primary" />
+                <span className="text-lg font-semibold">{weather.temp}°F</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSpeech}
+                className={cn("h-10 w-10 rounded-full", isSpeaking && "bg-primary/20 text-primary")}
+              >
+                {isSpeaking ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="h-10 w-10 rounded-full hover:bg-destructive/20 hover:text-destructive"
+              >
+                <X className="w-5 h-5" />
+              </Button>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-8 w-8"
-          >
-            <X className="w-4 h-4" />
-          </Button>
         </div>
 
-        {/* Messages */}
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            {messages.map((message) => (
+        {/* Messages with Advanced Styling */}
+        <ScrollArea className="flex-1 p-8" ref={scrollAreaRef}>
+          <div className="space-y-6 max-w-3xl mx-auto">
+            {messages.map((message, index) => (
               <div
                 key={message.id}
                 className={cn(
-                  "flex gap-2",
+                  "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500",
                   message.sender === 'user' ? "justify-end" : "justify-start"
                 )}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 {message.sender === 'jarvis' && (
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot className="w-3 h-3 text-primary" />
+                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/30">
+                    <Bot className="w-5 h-5 text-primary" />
+                    {isLoading && index === messages.length - 1 && (
+                      <div className="absolute inset-0 rounded-full border-2 border-primary/50 border-t-transparent animate-spin" />
+                    )}
                   </div>
                 )}
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                    "max-w-[75%] rounded-2xl px-5 py-3 text-base backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]",
                     message.sender === 'user'
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                      : "bg-card/80 border border-primary/20 shadow-lg"
                   )}
                 >
-                  {message.content}
+                  <p className="leading-relaxed">{message.content}</p>
+                  <span className="text-xs opacity-60 mt-2 block">
+                    {message.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
                 {message.sender === 'user' && (
-                  <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
-                    <User className="w-3 h-3" />
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                    <User className="w-5 h-5" />
                   </div>
                 )}
               </div>
             ))}
             {isLoading && (
-              <div className="flex gap-2 justify-start">
-                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot className="w-3 h-3 text-primary" />
+              <div className="flex gap-3 justify-start animate-in fade-in duration-300">
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/30">
+                  <Bot className="w-5 h-5 text-primary" />
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/50 border-t-transparent animate-spin" />
                 </div>
-                <div className="bg-muted rounded-lg px-3 py-2 text-sm">
-                  <div className="flex gap-1">
-                    <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="bg-card/80 border border-primary/20 rounded-2xl px-5 py-3 shadow-lg backdrop-blur-sm">
+                  <div className="flex gap-2 items-center">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="text-sm text-muted-foreground ml-2">Processing...</span>
                   </div>
                 </div>
               </div>
@@ -218,23 +308,24 @@ IMPORTANT RULES:
           </div>
         </ScrollArea>
 
-        {/* Input */}
-        <div className="p-4 border-t border-border">
-          <div className="flex gap-2">
+        {/* Advanced Input */}
+        <div className="p-6 border-t border-primary/20 bg-card/50 backdrop-blur-sm">
+          <div className="flex gap-3 max-w-3xl mx-auto">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything..."
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 h-12 px-6 bg-background/80 border-2 border-primary/30 rounded-full text-base focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary transition-all"
             />
             <Button
               onClick={sendMessage}
               disabled={!inputValue.trim() || isLoading}
               size="icon"
+              className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </Button>
           </div>
         </div>
