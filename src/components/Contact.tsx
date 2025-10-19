@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, MessageSquare, Send, User } from "lucide-react";
+import { Mail, MessageSquare, Send, User, Instagram } from "lucide-react";
 
 const Contact = () => {
   return (
@@ -48,6 +48,20 @@ const Contact = () => {
       {/* Footer */}
       <div className="mt-24 text-center">
         <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-8" />
+        
+        {/* Social Links */}
+        <div className="flex justify-center gap-4 mb-6">
+          <a
+            href="https://www.instagram.com/ss.15.ee.rish/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="brutal-border bg-card p-4 hover:bg-primary hover:text-primary-foreground transition-all duration-300 group"
+            aria-label="Instagram"
+          >
+            <Instagram className="h-6 w-6" />
+          </a>
+        </div>
+        
         <p className="text-muted-foreground">
           © 2024 Serish. Built with React, TypeScript, and Tailwind CSS.
         </p>
