@@ -181,18 +181,51 @@ IMPORTANT RULES:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-      {/* Animated Background */}
+      {/* Advanced Animated Background */}
       <div className="absolute inset-0 bg-background/95 backdrop-blur-sm">
         <div className="absolute inset-0 overflow-hidden">
+          {/* Animated orbs */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/10 rounded-full blur-[120px] animate-spin" style={{ animationDuration: '20s' }} />
+          
+          {/* Grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(28,200,101,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(28,200,101,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000,transparent)]" />
+          
+          {/* Scanlines */}
+          <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(28,200,101,0.02)_50%)] bg-[size:100%_4px] pointer-events-none animate-pulse" style={{ animationDuration: '3s' }} />
+          
+          {/* Radial gradient */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(28,200,101,0.15),transparent_50%)]" />
+          
+          {/* Animated diagonal lines */}
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" style={{ animationDuration: '2s' }} />
+            <div className="absolute top-1/4 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
+            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '1s' }} />
+            <div className="absolute top-3/4 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent animate-pulse" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }} />
+          </div>
+          
+          {/* Particles effect when loading */}
           {isLoading && (
-            <>
-              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-75" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-spin" style={{ animationDuration: '20s' }} />
-            </>
+            <div className="absolute inset-0">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-1 bg-primary/60 rounded-full animate-pulse"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 2}s`,
+                    animationDuration: `${2 + Math.random() * 3}s`,
+                  }}
+                />
+              ))}
+            </div>
           )}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent_0%,rgba(var(--primary-rgb),0.05)_50%,transparent_100%)] animate-pulse" />
+          
+          {/* Sweeping light effect */}
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(28,200,101,0.1)_50%,transparent_100%)] animate-pulse" style={{ animationDuration: '4s' }} />
         </div>
       </div>
 
